@@ -17,23 +17,50 @@
  
 import os
 import time
-import datetime
 import pipes
-import yaml
 from subprocess import call
 
+def getIndex(
+    _arryLi: list,
+    item: str
+):
+    return _arryLi.index(item)
+    
 try:
     # MySQL database details to which backup to be done. Make sure below user having enough privileges to take databases backup.
     # To take multiple databases backup, create any file like /backup/dbnames.txt and put databases names one on each line and assigned to DB_NAME variable.
 
     # Read database config in EMR-API-API
     database_yml_file = open("/var/www/BHT-EMR-API/config/database.yml", "r")
-    _data = yaml.safe_load(database_yml_file)
+    database_yml_file = database_yml_file.read().split()
 
+    username = ''
+    password = ''
+    database = ''
+
+    for item in database_yml_file:
+        if (item == "username:"):
+           username = (
+               database_yml_file[getIndex(database_yml_file, item) + 1]
+           ) 
+           print("username: "+username)
+        
+        if (item == "password:"):
+            password = (
+                database_yml_file[getIndex(database_yml_file, item) + 1]
+            )
+            print("password: "+password)
+        
+        if (item == "database:"):
+            database = (
+                database_yml_file[getIndex(database_yml_file, item) + 1]
+            )
+            print("database: "+database)
+        
     DB_HOST = 'localhost'
-    DB_USER = _data['default']['username']
-    DB_USER_PASSWORD = _data['default']['password']
-    DB_NAME = _data['development']['database']
+    DB_USER = username
+    DB_USER_PASSWORD = password
+    DB_NAME = database
     BACKUP_PATH = '/var/www/EMR-DB-BACKUP/'
     
     # Getting current DateTime to create the separate backup folder like "20180817-123433".
